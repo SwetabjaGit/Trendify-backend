@@ -7,6 +7,7 @@ const connectDatabase = require("./database");
 
 // Importing Routes
 const productRoutes = require("./routes/productRoute");
+const userRoutes = require("./routes/userRoute");
 
 
 // Database connection
@@ -18,7 +19,7 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-cloudinary.v2.uploader.upload()
+//cloudinary.v2.uploader.upload()
 
 // Middlewares
 app.use(express.json());
@@ -27,6 +28,7 @@ app.use(cors());
 
 // Routes
 app.use("/api/v1", productRoutes);
+app.use("/api/v1", userRoutes);
 
 
 const PORT = process.env.PORT || 8080;

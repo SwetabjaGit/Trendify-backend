@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -17,21 +18,35 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please Enter Your Password"],
     minLength: [8, "Password should be greater than 8 characters"],
-    select: false,
+    select: false
   },
-  avatar: {
-    public_id: {
-      type: String,
-      required: true,
-    },
-    url: {
-      type: String,
-      required: true,
-    },
-  },
-  role: {
+  imageUrl: {
     type: String,
-    default: "user",
+    required: false
+  },
+  activated: { 
+    type: Boolean, 
+    default: false 
+  },
+  address: [
+    {
+      contactName: String,
+      phoneNo: String,
+      pinCode: Number,
+      addressLine: String,
+      locality: String,
+      city: String,
+      state: String,
+    }
+  ],
+  payment: {
+    cardNumber: String,
+    cardName: String,
+    expiry: {
+      month: Number,
+      year: Number
+    },
+    cardCvv: Number
   },
   createdAt: {
     type: Date,
@@ -41,6 +56,18 @@ const userSchema = new mongoose.Schema({
   resetPasswordToken: String,
   resetPasswordExpire: Date,
 });
+
+
+userSchema.methods.generateAuthToken = function () {
+  const token = jwt.sign(
+    { _id: this._id }, 
+    process.env.JWTPRIVATEKEY, 
+    {
+      expiresIn: "7d",
+    }
+  );
+  return token;
+};
 
 
 

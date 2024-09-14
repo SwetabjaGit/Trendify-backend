@@ -5,11 +5,31 @@ const cloudinary = require("cloudinary");
 
 exports.getAllProducts = async (req, res, next) => {
   try {
-    let productsList = await Product.find({});
+    const productsList = await Product.find({});
+
+    const newProductsList = productsList.map((product) => {
+      let newProduct = {
+        _id: product._id,
+        name: product.name,
+        category: product.category,
+        company: product.company,
+        description: product.description,
+        image: product.image,
+        original_price: product.original_price,
+        current_price: product.current_price,
+        discount_percentage: product.discount_percentage,
+        stock: product.stock,
+        rating: product.rating,
+        return_period: product.return_period,
+        createdAt: product.createdAt
+      };
+      return newProduct;
+    });
+
     console.log("All Products Fetched");
     res.status(200).send({
-      products: productsList
-    })
+      products: newProductsList
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: "Internal Server Error" });
