@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 
-const cartSchema = new mongoose.Schema({
+const wishlistSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
     required: true
   },
-  cart: [
+  wishlist: [
     {
       productId: {
         type: mongoose.Schema.ObjectId,
@@ -40,13 +40,9 @@ const cartSchema = new mongoose.Schema({
       discount_percentage: {
         type: Number,
         required: true
-      },
-      quantity: {
-        type: Number,
-        required: true
       }
     }
   ]
 });
 
-module.exports = mongoose.model("Cart", cartSchema);
+module.exports = mongoose.model("Wishlist", wishlistSchema);

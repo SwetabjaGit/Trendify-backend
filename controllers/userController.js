@@ -39,7 +39,7 @@ exports.registerUser = async (req, res, next) => {
       });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.message });
   }
 };
 
@@ -56,9 +56,6 @@ exports.loginUser = async (req, res, next) => {
     if(!user) {
       return res.status(401).send({ message: "Invalid Email or Password" });
     }
-
-    //console.log('req.password', req.body.password);
-    //console.log('user.password', user.password);
 
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if(!validPassword) {
@@ -83,10 +80,10 @@ exports.loginUser = async (req, res, next) => {
     } */
 
     const token = user.generateAuthToken();
-    res.status(200).send({ data: token, message: "logged in successfully" });
+    res.status(200).send({ token: token, message: "logged in successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.message });
   }
 };
 
@@ -103,6 +100,6 @@ exports.getUserDetails = async (req, res) => {
       user: userData
     });
   } catch(error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.message });
   }
 };

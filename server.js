@@ -8,6 +8,8 @@ const connectDatabase = require("./database");
 // Importing Routes
 const productRoutes = require("./routes/productRoute");
 const userRoutes = require("./routes/userRoute");
+const cartRoutes = require("./routes/cartRoute");
+const wishlistRoutes = require("./routes/wishlistRoute");
 
 
 // Database connection
@@ -29,6 +31,8 @@ app.use(cors());
 // Routes
 app.use("/api/v1", productRoutes);
 app.use("/api/v1", userRoutes);
+app.use("/api/v1", cartRoutes);
+app.use("/api/v1", wishlistRoutes);
 
 
 const PORT = process.env.PORT || 8080;

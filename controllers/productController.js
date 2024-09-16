@@ -27,14 +27,12 @@ exports.getAllProducts = async (req, res, next) => {
     });
 
     console.log("All Products Fetched");
-    res.status(200).send({
-      products: newProductsList
-    });
+    res.status(200).send({ products: newProductsList });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.message });
   }
-}
+};
 
 
 exports.getProductById = async (req, res, next) => {
@@ -49,9 +47,9 @@ exports.getProductById = async (req, res, next) => {
     res.status(200).send(product);
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.message });
   }
-}
+};
 
 
 exports.createProduct = async (req, res, next) => {
@@ -66,14 +64,14 @@ exports.createProduct = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.message });
   }
-}
+};
 
 
 exports.deleteProduct = async (req, res, next) => {
   try {
-    await Product.findOneAndDelete({ id: req.body.id });
+    await Product.findOneAndDelete({ id: req.params.id });
     console.log("Removed");
     res.status(200).send({
       success: true,
@@ -81,9 +79,9 @@ exports.deleteProduct = async (req, res, next) => {
     })
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.message });
   }
-}
+};
 
 
 exports.uploadImage = async (req, res, next) => {
@@ -92,6 +90,46 @@ exports.uploadImage = async (req, res, next) => {
     res.status(200).send({ message: "Uploading Image" });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ message: error.message });
   }
-}
+};
+
+
+exports.getProductReviews = async (req, res, next) => {
+  try {
+    const product = Product.findOne({ _id: req.params.id });
+    if (!product) {
+      return res.status(400).send({ message: "Product Not Found" });
+    }
+
+    const reviews = product.reviews;
+    res.status(200).send({
+      success: true,
+      reviews
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  }
+};
+
+
+exports.addProductReview = async (req, res, next) => {
+  try {
+    const product = Product.findOne({ _id: req.params.id });
+    if (!product) {
+      return res.status(400).send({ message: "Product Not Found" });
+    }
+
+    console.log("req.userId", req.userId);
+
+    product.reviews.push(req.body);
+    await product.save();
+    console.log("Review Published");
+    
+    res.status(200).send({ message: "Review Posted Successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: "Failed to post review" });
+  }
+};
