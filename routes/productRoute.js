@@ -1,6 +1,7 @@
 const express = require("express");
 const {
   getAllProducts,
+  getAllBrands,
   getProductById,
   createProduct,
   deleteProduct,
@@ -14,7 +15,9 @@ const { isAuthenticatedUser } = require("../middlewares/auth");
 const router = express.Router();
 
 
-router.get("/allproducts", getAllProducts);
+router.get("/products", getAllProducts);
+
+router.get("/products/brands", getAllBrands);
 
 router.get("/product/:id", getProductById);
 

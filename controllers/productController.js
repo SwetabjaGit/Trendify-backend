@@ -1,13 +1,51 @@
 const Product = require("../models/productModel");
 const cloudinary = require("cloudinary");
-
+const ApiFeatures = require("../utils/ApiFeatures");
 
 
 exports.getAllProducts = async (req, res, next) => {
   try {
-    const productsList = await Product.find({});
+    console.log("Query", req.query);
+    //const apiFeature = new ApiFeatures(Product.find(), req.query);
 
-    const newProductsList = productsList.map((product) => {
+    let queryCriteria = {};
+
+    queryCriteria.name = {
+      $regex: req.query.keyword || "",
+      $options: "i",
+    }
+
+    if(req.query.category){
+      queryCriteria.category = req.query.category;
+    }
+
+    if(req.query.brand){
+      queryCriteria.company = req.query.brand;
+    }
+
+    const range = req.query.price ? req.query.price.split(" ") : [0, 1000000];
+    queryCriteria.current_price = {
+      $gte: parseInt(range[0]),
+      $lte: parseInt(range[1])
+    };
+
+    let sortBy = {};
+    req.query.sort ? sortBy[req.query.sort] = -1 : sortBy['createdAt'] = -1;
+    console.log('sortBy', sortBy);
+
+    const pageNo = parseInt(req.query.page)-1 || 0;
+    const itemsPerPage = parseInt(req.query.limit) || 500;
+
+    let products = await Product.find(queryCriteria)
+      .sort(sortBy)
+      .skip(pageNo * itemsPerPage)
+      .limit(itemsPerPage);
+    
+    if (!products) {
+      return res.status(400).send({ message: "Products Not Found" });
+    }
+
+    const newProductsList = products.map((product) => {
       let newProduct = {
         _id: product._id,
         name: product.name,
@@ -26,13 +64,40 @@ exports.getAllProducts = async (req, res, next) => {
       return newProduct;
     });
 
-    console.log("All Products Fetched");
-    res.status(200).send({ products: newProductsList });
+    const productsCount = await Product.countDocuments();
+    const filteredProductsCount = products.length;
+
+    res.status(200).send({
+      success: true,
+      productsCount,
+      products: newProductsList,
+      filteredProductsCount
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: error.message });
   }
 };
+
+
+exports.getAllBrands = async (req, res, next) => {
+  try {
+    let queryCriteria = {};
+    if(req.query.category){
+      queryCriteria.category = req.query.category;
+    }
+
+    const companies = await Product.distinct("company", queryCriteria);
+    if (!companies) {
+      return res.status(400).send({ message: "Companies Not Found" });
+    }
+
+    res.status(200).send({ companies });
+  } catch(error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  }
+}
 
 
 exports.getProductById = async (req, res, next) => {
