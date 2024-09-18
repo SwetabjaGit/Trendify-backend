@@ -1,12 +1,10 @@
 const Product = require("../models/productModel");
 const cloudinary = require("cloudinary");
-const ApiFeatures = require("../utils/ApiFeatures");
 
 
 exports.getAllProducts = async (req, res, next) => {
   try {
     console.log("Query", req.query);
-    //const apiFeature = new ApiFeatures(Product.find(), req.query);
 
     let queryCriteria = {};
 
@@ -67,14 +65,15 @@ exports.getAllProducts = async (req, res, next) => {
       return newProduct;
     });
 
-    const productsCount = await Product.countDocuments();
-    const filteredProductsCount = products.length;
+    //const totalProductsCount = await Product.countDocuments();
+    const totalCount = await Product.countDocuments(queryCriteria, { hint: "_id_"});
+    const pageLength = products.length;
 
     res.status(200).send({
       success: true,
-      productsCount,
+      totalCount,
+      pageLength,
       products: newProductsList,
-      filteredProductsCount
     });
   } catch (error) {
     console.log(error);
@@ -123,7 +122,6 @@ exports.getProductById = async (req, res, next) => {
     if (!product) {
       return res.status(400).send({ message: "Product Not Found" });
     }
-    console.log(product);
 
     res.status(200).send(product);
   } catch (error) {
@@ -178,7 +176,7 @@ exports.uploadImage = async (req, res, next) => {
 
 exports.getProductReviews = async (req, res, next) => {
   try {
-    const product = Product.findOne({ _id: req.params.id });
+    const product = await Product.findOne({ _id: req.params.id });
     if (!product) {
       return res.status(400).send({ message: "Product Not Found" });
     }
@@ -197,7 +195,7 @@ exports.getProductReviews = async (req, res, next) => {
 
 exports.addProductReview = async (req, res, next) => {
   try {
-    const product = Product.findOne({ _id: req.params.id });
+    const product = await Product.findOne({ _id: req.params.id });
     if (!product) {
       return res.status(400).send({ message: "Product Not Found" });
     }
@@ -214,3 +212,41 @@ exports.addProductReview = async (req, res, next) => {
     res.status(500).send({ message: "Failed to post review" });
   }
 };
+
+
+exports.deleteProductReview = async (req, res, next) => {
+  try {
+    const product = await Product.findOne({ _id: req.params.id });
+    if (!product) {
+      return res.status(400).send({ message: "Product Not Found" });
+    }
+    
+    res.status(200).send({ message: "Review Deleted Successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: "Failed to delete review" });
+  }
+};
+
+
+/* exports.createNewField = async (req, res, next) => {
+  try {
+    const products = await Product.find();
+    if (!products) {
+      return res.status(400).send({ message: "Products Not Found" });
+    }
+
+    const productsCount = await Product.countDocuments();
+    let responseList = [];
+    for(let i = 0; i < productsCount; i++){
+      const productSchema = await Product.findOne({ _id: products[i]._id });
+      await productSchema.save();
+      responseList.push(productSchema._id);
+    }
+
+    res.status(200).send(responseList);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  }
+} */

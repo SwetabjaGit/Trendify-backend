@@ -7,7 +7,8 @@ const {
   deleteProduct,
   uploadImage,
   getProductReviews,
-  addProductReview
+  addProductReview,
+  deleteProductReview
 } = require("../controllers/productController");
 const { isAuthenticatedUser } = require("../middlewares/auth");
 
@@ -29,7 +30,11 @@ router.post("/product/uploadimage", uploadImage);
 
 router.post("/product/review/get/:id", getProductReviews);
 
-router.post("/product/review/post/:id", isAuthenticatedUser, addProductReview);
+router.post("/product/review/add/:id", isAuthenticatedUser, addProductReview);
+
+router.post("/product/review/delete/:id", isAuthenticatedUser, deleteProductReview);
+
+//router.post("/product/createnewfield", createNewField);
 
 
 module.exports = router;

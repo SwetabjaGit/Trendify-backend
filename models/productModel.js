@@ -9,6 +9,11 @@ const productSchema = mongoose.Schema({
     type: String,
     required: [true, "Please Enter Product Category"],
   },
+  sub_category: {
+    type: String,
+    required: false,
+    default: "topwear"
+  },
   company: {
     type: String,
     required: [true, "Please Enter Product Company"],
@@ -20,6 +25,11 @@ const productSchema = mongoose.Schema({
   image:{
     type: String,
     required: true,
+  },
+  color: {
+    type: String,
+    required: false,
+    default: "red"
   },
   original_price: {
     type: Number,
@@ -40,6 +50,11 @@ const productSchema = mongoose.Schema({
     required: [true, "Please Enter product Stock"],
     maxLength: [4, "Stock cannot exceed 4 characters"],
     default: 1,
+  },
+  sales: {
+    type: Number,
+    required: false,
+    default: 1
   },
   rating: {
     stars: {
