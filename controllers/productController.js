@@ -30,7 +30,10 @@ exports.getAllProducts = async (req, res, next) => {
     };
 
     let sortBy = {};
-    req.query.sort ? sortBy[req.query.sort] = -1 : sortBy['createdAt'] = -1;
+    const sortQuery = req.query.sort ? req.query.sort.split(" ") : ['createdAt', 1];
+    req.query.sort 
+      ? sortBy[sortQuery[0]] = sortQuery[1] ? sortQuery[1] : -1 
+      : sortBy['createdAt'] = 1;
     console.log('sortBy', sortBy);
 
     const pageNo = parseInt(req.query.page)-1 || 0;
@@ -82,22 +85,35 @@ exports.getAllProducts = async (req, res, next) => {
 
 exports.getAllBrands = async (req, res, next) => {
   try {
+    /* const companies = await Product.aggregate([{
+      $group: {
+        _id: "$company",
+        count: { $sum: 1 };
+      }
+    }]); */
+    const allCompanies = await Product.aggregate([
+      { $sortByCount: "$company" }
+    ]);
+    if (!allCompanies) {
+      return res.status(400).send({ message: "Companies Not Found" });
+    }
+
     let queryCriteria = {};
     if(req.query.category){
       queryCriteria.category = req.query.category;
     }
+    const companyCategory = await Product.distinct("company", queryCriteria);
 
-    const companies = await Product.distinct("company", queryCriteria);
-    if (!companies) {
-      return res.status(400).send({ message: "Companies Not Found" });
-    }
+    const companies = allCompanies.filter((company) => {
+      return companyCategory.includes(company._id);
+    });
 
     res.status(200).send({ companies });
   } catch(error) {
     console.log(error);
     res.status(500).send({ message: error.message });
   }
-}
+};
 
 
 exports.getProductById = async (req, res, next) => {
