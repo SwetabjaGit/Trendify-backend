@@ -8,10 +8,16 @@ exports.getAllProducts = async (req, res, next) => {
 
     let queryCriteria = {};
 
-    queryCriteria.name = {
+    if(req.query.keyword){
+      queryCriteria.$text = {
+        $search: req.query.keyword,
+      }
+    }
+
+    /* queryCriteria.name = {
       $regex: req.query.keyword || "",
       $options: "i",
-    }
+    } */
 
     if(req.query.category){
       queryCriteria.category = req.query.category;
@@ -65,8 +71,8 @@ exports.getAllProducts = async (req, res, next) => {
       return newProduct;
     });
 
-    //const totalProductsCount = await Product.countDocuments();
-    const totalCount = await Product.countDocuments(queryCriteria, { hint: "_id_"});
+    //const totalCount = await Product.countDocuments(queryCriteria, { hint: "_id_"});
+    const totalCount = await Product.countDocuments(queryCriteria);
     const pageLength = products.length;
 
     res.status(200).send({
