@@ -88,7 +88,11 @@ exports.getWishlistItems = async (req, res, next) => {
     const wishlistSchema = await Wishlist.findOne({ userId: req.userId });
 
     if(!wishlistSchema){
-      return res.status(400).send({ message: "Wishlist Not Found" });
+      const responseObj = {
+        userId: req.userId,
+        wishlist: []
+      }
+      return res.status(200).send(responseObj);
     }
 
     res.status(200).send(wishlistSchema);
