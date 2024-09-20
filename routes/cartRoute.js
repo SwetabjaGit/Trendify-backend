@@ -15,7 +15,7 @@ router.post("/cart/add", isAuthenticatedUser, addToCart);
 
 router.post("/cart/remove",isAuthenticatedUser, removeFromCart);
 
-router.get("/cart/getcart", isAuthenticatedUser, getCartDetails);
+router.get("/cart/get", isAuthenticatedUser, getCartDetails);
 
 router.post("/cart/increment", isAuthenticatedUser, incrementCartItemQuantity);
 

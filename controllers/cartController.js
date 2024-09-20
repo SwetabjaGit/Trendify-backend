@@ -13,8 +13,7 @@ exports.addToCart = async (req, res, next) => {
         cart: [cartDetails]
       }
       const cartItem = await new Cart(cartObj).save();
-      console.log("Cart item added");
-      console.log('cartItem', cartItem);
+      console.log("CartItem added");
       return res.status(200).send({
         success: true,
         message: `CartItem Added Successfully, CartId: ${cartItem._id}`
@@ -42,7 +41,7 @@ exports.addToCart = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ success: false, message: error.message });
   }
 };
 
@@ -80,7 +79,7 @@ exports.removeFromCart = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ success: false, message: error.message });
   }
 };
 
@@ -89,13 +88,17 @@ exports.getCartDetails = async (req, res, next) => {
     const cartSchema = await Cart.findOne({ userId: req.userId });
 
     if(!cartSchema){
-      return res.status(400).send({ message: "Cart Not Found" });
+      const responseObj = {
+        userId: req.userId,
+        cart: []
+      }
+      return res.status(200).send(responseObj);
     }
 
     res.status(200).send(cartSchema);
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ success: false, message: error.message });
   }
 };
 
@@ -129,11 +132,12 @@ exports.incrementCartItemQuantity = async (req, res, next) => {
     
     res.status(200).send({
       success: true,
+      productId: req.body.productId,
       message: `Quantity Incremented Successfully, CartId: ${cartSchema._id}`
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ success: false, message: error.message });
   }
 };
 
@@ -173,10 +177,11 @@ exports.decrementCartItemQuantity = async (req, res, next) => {
     console.log("CartItem Decremented");
     res.status(200).send({
       success: true,
+      productId: req.body.productId,
       message: `Quantity Decremented Successfully, CartId: ${cartSchema._id}`
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ success: false, message: error.message });
   }
 };
