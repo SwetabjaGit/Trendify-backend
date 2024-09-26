@@ -88,10 +88,9 @@ exports.loginUser = async (req, res, next) => {
 };
 
 
-exports.getUserDetails = async (req, res) => {
+exports.getUserDetails = async (req, res, next) => {
   try {
     const userData = await User.findOne({ _id: req.userId });
-    console.log(userData);
     if (!userData) {
       return res.status(400).send({ message: "User not found" });
     }
@@ -101,5 +100,144 @@ exports.getUserDetails = async (req, res) => {
     });
   } catch(error) {
     res.status(500).send({ message: error.message });
+  }
+};
+
+
+exports.updateUserProfile = async (req, res, next) => {
+  try {
+    const newUserData = req.body;
+    console.log(newUserData);
+
+    const userData = await User.findByIdAndUpdate(req.userId, newUserData);
+    if (!userData) {
+      return res.status(400).send({ message: "User not found" });
+    }
+
+    res.status(200).send({ 
+      message: "Profile Updated Successfully", 
+      user: userData
+    });
+  } catch(error) {
+    console.log(error);
+    res.status(500).send({ message: error.message });
+  }
+};
+
+
+exports.getUserAddresses = async (req, res, next) => {
+  try {
+    const userData = await User.findOne({ _id: req.userId });
+    if (!userData) {
+      return res.status(400).send({ success: false, message: "User not found" });
+    }
+
+    const address = userData.address;
+    res.status(200).send({
+      success: true,
+      message: "Address Fetched Successfully", 
+      address
+    });
+  } catch(error) {
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+
+exports.createNewUserAddress = async (req, res, next) => {
+  try {
+    const userData = await User.findOne({ _id: req.userId });
+    if (!userData) {
+      return res.status(400).send({ success: false, message: "User not found" });
+    }
+
+    const addressObj = {
+      ...req.body,
+      default: false
+    }
+    userData.address.push(addressObj);
+    const newUserData = await userData.save();
+    const numAddress = newUserData.address.length;
+
+    res.status(200).send({
+      success: true,
+      message: "Address Inserted Successfully",
+      address: newUserData.address[numAddress-1],
+    });
+  } catch(error) {
+    console.log(error);
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+
+exports.updateUserAddress = async (req, res, next) => {
+  try {
+    const addressId = req.params.id;
+    const userData = await User.findOne({
+      _id: req.userId,
+      address: {
+        $elemMatch: { _id: addressId }
+      }
+    });
+    if (!userData) {
+      return res.status(400).send({ success: false, message: "Address not found" });
+    }
+
+    await User.updateOne(
+      { _id: req.userId, 'address._id': addressId },
+      { $set: {
+          'address.$.contactName': req.body.contactName,
+          'address.$.phoneNo': req.body.phoneNo,
+          'address.$.pinCode': req.body.pinCode,
+          'address.$.addressLine': req.body.addressLine,
+          'address.$.locality': req.body.locality,
+          'address.$.city': req.body.city,
+          'address.$.state': req.body.state,
+        }
+      }
+    );
+
+    const addressData = await User.findOne(
+      { _id: req.userId },
+      { address: {
+          $elemMatch: { _id: addressId }
+        }
+      }
+    );
+    console.log('UpdatedAddress: ', addressData.address[0]);
+    res.status(200).send({ 
+      success: true,
+      message: "Address Updated Successfully",
+      address: addressData.address[0]
+    });
+  } catch(error) {
+    console.log(error);
+    res.status(500).send({ success: false, message: error.message });
+  }
+};
+
+
+exports.deleteUserAddress = async (req, res, next) => {
+  try {
+    const userData = await User.findOne({ _id: req.userId });
+    if (!userData) {
+      return res.status(400).send({ success: false, message: "User not found" });
+    }
+
+    const addressId = req.params.id;
+    userData.address = userData.address.filter((address) => {
+      return address._id.toString() !== addressId
+    });
+    await userData.save();
+
+    res.status(200).send({ 
+      success: true,
+      message: "Address Deleted Successfully",
+      addressId
+    });
+  } catch(error) {
+    console.log(error);
+    res.status(500).send({ success: false, message: error.message });
   }
 };

@@ -77,6 +77,11 @@ const productSchema = mongoose.Schema({
         type: String,
         required: true,
       },
+      imageUrl: {
+        type: String,
+        required: false,
+        default: "https://res.cloudinary.com/dpkktgrqj/image/upload/v1727188343/user_profile/user_profile_ertdrl.png"
+      },
       rating: {
         type: Number,
         required: true,

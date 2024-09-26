@@ -24,19 +24,65 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  mobileNo: {
+    type: String,
+    required: false,
+  },
+  gender: {
+    type: String,
+    required: false,
+    enum: ["Male", "Female"]
+  },
+  dateOfBirth: {
+    type: Date,
+    required: false,
+  },
+  alternateMobile: {
+    type: String,
+    required: false,
+  },
+  location: {
+    type: String,
+    required: false,
+  },
   activated: { 
     type: Boolean, 
     default: false 
   },
   address: [
     {
-      contactName: String,
-      phoneNo: String,
-      pinCode: Number,
-      addressLine: String,
-      locality: String,
-      city: String,
-      state: String,
+      contactName: {
+        type: String,
+        required: true
+      },
+      phoneNo: {
+        type: String,
+        required: true
+      },
+      pinCode: {
+        type: Number,
+        required: true
+      },
+      addressLine: {
+        type: String,
+        required: true
+      },
+      locality: {
+        type: String,
+        required: true
+      },
+      city: {
+        type: String,
+        required: true
+      },
+      state: {
+        type: String,
+        required: true
+      },
+      default: {
+        type: Boolean,
+        required: true
+      }
     }
   ],
   payment: {

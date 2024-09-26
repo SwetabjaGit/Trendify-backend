@@ -10,6 +10,7 @@ const productRoutes = require("./routes/productRoute");
 const userRoutes = require("./routes/userRoute");
 const cartRoutes = require("./routes/cartRoute");
 const wishlistRoutes = require("./routes/wishlistRoute");
+const orderRoutes = require("./routes/orderRoute");
 
 
 // Database connection
@@ -33,6 +34,7 @@ app.use("/api/v1", productRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", cartRoutes);
 app.use("/api/v1", wishlistRoutes);
+app.use("/api/v1", orderRoutes);
 
 
 const PORT = process.env.PORT || 8080;

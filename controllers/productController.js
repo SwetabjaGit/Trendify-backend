@@ -1,5 +1,6 @@
 const Product = require("../models/productModel");
 const cloudinary = require("cloudinary");
+const { checkVerifiedPurchase } = require("../utils/verifiedPurchase");
 
 
 exports.getAllProducts = async (req, res, next) => {
@@ -23,8 +24,11 @@ exports.getAllProducts = async (req, res, next) => {
       queryCriteria.category = req.query.category;
     }
 
+    let brandsList = req.query.brand ? req.query.brand.split(",") : [];
     if(req.query.brand){
-      queryCriteria.company = req.query.brand;
+      queryCriteria.company = {
+        $in: brandsList
+      }
     }
 
     const range = req.query.price ? req.query.price.split(" ") : [0, 1000000];
@@ -123,7 +127,7 @@ exports.getAllBrands = async (req, res, next) => {
 
 exports.getProductById = async (req, res, next) => {
   try {
-    let productId = req.params.id;
+    const productId = req.params.id;
     const product = await Product.findOne({ _id: productId });
     if (!product) {
       return res.status(400).send({ message: "Product Not Found" });
@@ -149,7 +153,7 @@ exports.createProduct = async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ message: error.message });
+    res.status(500).send({ success: false, message: error.message });
   }
 };
 
@@ -201,18 +205,40 @@ exports.getProductReviews = async (req, res, next) => {
 
 exports.addProductReview = async (req, res, next) => {
   try {
-    const product = await Product.findOne({ _id: req.params.id });
+    const productId = req.params.id;
+    const product = await Product.findOne({ _id: productId });
     if (!product) {
       return res.status(400).send({ message: "Product Not Found" });
     }
 
     console.log("req.userId", req.userId);
+    const userReviewIndex = product.reviews.findIndex(
+      (review) => review.userId.toString() === req.userId
+    );
 
-    product.reviews.push(req.body);
+    if(userReviewIndex !== -1){
+      product.reviews[userReviewIndex].rating = Number(req.body.rating);
+      product.reviews[userReviewIndex].title = req.body.title;
+      product.reviews[userReviewIndex].comment = req.body.comment;
+    }
+    else {
+      const reviewObj = {
+        userId: req.userId,
+        verified_purchase: await checkVerifiedPurchase(productId, req.userId),
+        ...req.body
+      }
+      product.reviews.push(reviewObj);
+    }
+
+    //TODO: Calculate the new rating
+    
     await product.save();
     console.log("Review Published");
     
-    res.status(200).send({ message: "Review Posted Successfully" });
+    res.status(200).send({ 
+      success: true, 
+      message: "Review Posted Successfully" 
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: "Failed to post review" });
@@ -226,8 +252,20 @@ exports.deleteProductReview = async (req, res, next) => {
     if (!product) {
       return res.status(400).send({ message: "Product Not Found" });
     }
+
+    product.reviews = product.reviews.filter(
+      (review) => review.userId.toString() !== req.userId
+    );
+
+    //TODO: Calculate the new rating
+
+    await product.save();
+    console.log("Review Deleted");
     
-    res.status(200).send({ message: "Review Deleted Successfully" });
+    res.status(200).send({
+      success: true,
+      message: "Review Deleted Successfully" 
+    });
   } catch (error) {
     console.log(error);
     res.status(500).send({ message: "Failed to delete review" });

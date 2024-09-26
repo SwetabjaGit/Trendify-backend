@@ -28,7 +28,7 @@ router.delete("/product/delete/:id", deleteProduct);
 
 router.post("/product/uploadimage", uploadImage);
 
-router.post("/product/review/get/:id", getProductReviews);
+router.get("/product/review/get/:id", getProductReviews);
 
 router.post("/product/review/add/:id", isAuthenticatedUser, addProductReview);
 
