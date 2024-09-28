@@ -79,6 +79,12 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
       },
+      type: {
+        type: String,
+        required: false,
+        enum: ["Home", "Office"],
+        default: "Home"
+      },
       default: {
         type: Boolean,
         required: true
