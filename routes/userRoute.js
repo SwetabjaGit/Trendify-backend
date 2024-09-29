@@ -7,7 +7,8 @@ const {
   getUserAddresses,
   createNewUserAddress,
   updateUserAddress,
-  deleteUserAddress
+  deleteUserAddress,
+  insertNewUser
 } = require("../controllers/userController");
 const { isAuthenticatedUser } = require("../middlewares/auth");
 
@@ -30,6 +31,8 @@ router.post("/user/address/add", isAuthenticatedUser, createNewUserAddress);
 router.put("/user/address/edit/:id", isAuthenticatedUser, updateUserAddress);
 
 router.delete("/user/address/delete/:id", isAuthenticatedUser, deleteUserAddress);
+
+router.post("/user/insert", insertNewUser);
 
 
 module.exports = router;

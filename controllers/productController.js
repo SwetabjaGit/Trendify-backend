@@ -97,7 +97,7 @@ exports.getAllBrands = async (req, res, next) => {
     /* const companies = await Product.aggregate([{
       $group: {
         _id: "$company",
-        count: { $sum: 1 };
+        count: { $sum: 1 }
       }
     }]); */
     const allCompanies = await Product.aggregate([
@@ -271,6 +271,42 @@ exports.deleteProductReview = async (req, res, next) => {
     res.status(500).send({ message: "Failed to delete review" });
   }
 };
+
+
+exports.findAllReviewers = async (req, res, next) => {
+  try {
+    const reviewers = await Product.aggregate([
+      {
+        $unwind: "$reviews"
+      },
+      {
+        $group: {
+          _id: {
+            userId: "$reviews.userId",
+            userName: "$reviews.userName"
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: "$_id.userId",
+          userName: "$_id.userName"
+        }
+      }
+    ]);
+
+    if(!reviewers) {
+      return res.status(400).send({ message: "Reviews Not Found" });
+    }
+
+    res.status(200).send({ length: reviewers.length, reviewers });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: "Failed to count reviews" });
+  }
+}
+
 
 
 /* exports.createNewField = async (req, res, next) => {

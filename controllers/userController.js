@@ -8,8 +8,9 @@ exports.registerUser = async (req, res, next) => {
   try {
     const { error } = validateRegister(req.body);
 
-    if (error)
+    if (error){
       return res.status(400).send({ message: error.details[0].message });
+    }
 
     let user = await User.findOne({ email: req.body.email });
     if (user){
@@ -241,3 +242,22 @@ exports.deleteUserAddress = async (req, res, next) => {
     res.status(500).send({ success: false, message: error.message });
   }
 };
+
+
+exports.insertNewUser = async (req, res, next) => {
+  try {
+    const salt = await bcrypt.genSalt(Number(process.env.SALT));
+    const hashPassword = await bcrypt.hash(req.body.password, salt);
+
+    const newUser = await User.insertMany({
+      ...req.body,
+      password: hashPassword
+    });
+    console.log("User Inserted");
+
+    res.status(200).send({ newUser });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: "Failed to insert user" });
+  }
+}

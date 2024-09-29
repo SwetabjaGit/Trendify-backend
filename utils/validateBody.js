@@ -3,9 +3,18 @@ const passwordComplexity = require("joi-password-complexity");
 
 
 const validateRegister = (data) => {
+  const complexityOptions = {
+    min: 8,
+    max: 26,
+    lowerCase: 1,
+    upperCase: 0,
+    numeric: 1,
+    symbol: 0,
+    requirementCount: 2,
+  };
   let nameStr = Joi.string().required().label("Name");
   let emailStr = Joi.string().email().required().label("Email");
-  let passwordStr = passwordComplexity().required().label("Password");
+  let passwordStr = passwordComplexity(complexityOptions).required().label("Password");
 
   const schema = Joi.object({
     name: nameStr,

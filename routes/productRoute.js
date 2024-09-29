@@ -8,7 +8,8 @@ const {
   uploadImage,
   getProductReviews,
   addProductReview,
-  deleteProductReview
+  deleteProductReview,
+  findAllReviewers
 } = require("../controllers/productController");
 const { isAuthenticatedUser } = require("../middlewares/auth");
 
@@ -33,6 +34,8 @@ router.get("/product/review/get/:id", getProductReviews);
 router.post("/product/review/add/:id", isAuthenticatedUser, addProductReview);
 
 router.post("/product/review/delete/:id", isAuthenticatedUser, deleteProductReview);
+
+router.get("/product/reviewers/all", findAllReviewers);
 
 //router.post("/product/createnewfield", createNewField);
 
